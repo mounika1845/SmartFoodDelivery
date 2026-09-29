@@ -9,10 +9,11 @@
 #include "graph.h"
 #include "eta.h"
 
+#include "search.h"
+#include "history.h"
+#include "storage.h"
 
-/* ---------------------------------------------------------
-   Display the information handled by Member 1
-   --------------------------------------------------------- */
+
 void restaurantCustomerSection()
 {
     int option;
@@ -57,9 +58,6 @@ void restaurantCustomerSection()
 }
 
 
-/* ---------------------------------------------------------
-   Delivery operations handled by Member 2
-   --------------------------------------------------------- */
 void deliverySection(
     OrderQueue *normal,
     PriorityQueue *urgent)
@@ -107,8 +105,10 @@ void deliverySection(
                 }
                 else
                 {
-                    printf("\nNormal order %d has been selected for delivery.\n",
+                    printf("\nNormal order %d has been delivered.\n",
                            orderId);
+
+                    addCompletedOrder(orderId);
                 }
                 break;
 
@@ -121,8 +121,10 @@ void deliverySection(
                 }
                 else
                 {
-                    printf("\nPriority order %d has been selected for delivery.\n",
+                    printf("\nPriority order %d has been delivered.\n",
                            orderId);
+
+                    addCompletedOrder(orderId);
                 }
                 break;
 
@@ -136,9 +138,6 @@ void deliverySection(
 }
 
 
-/* ---------------------------------------------------------
-   Member 3: display the delivery network
-   --------------------------------------------------------- */
 void roadNetworkSection()
 {
     printf("\n");
@@ -150,9 +149,6 @@ void roadNetworkSection()
 }
 
 
-/* ---------------------------------------------------------
-   Member 3: shortest path operation
-   --------------------------------------------------------- */
 void shortestPathSection()
 {
     int source;
@@ -220,9 +216,6 @@ void shortestPathSection()
 }
 
 
-/* ---------------------------------------------------------
-   Member 4: ETA
-   --------------------------------------------------------- */
 void etaSection()
 {
     float distance;
@@ -255,9 +248,6 @@ void etaSection()
 }
 
 
-/* ---------------------------------------------------------
-   Member 4: project status
-   --------------------------------------------------------- */
 void dashboardSection(
     OrderQueue *normal,
     PriorityQueue *urgent)
@@ -276,13 +266,7 @@ void dashboardSection(
 
     priorityWaiting = urgent->count;
 
-    completed =
-        orderTotal - normalWaiting - priorityWaiting;
-
-    if (completed < 0)
-    {
-        completed = 0;
-    }
+    completed = completedOrderCount();
 
     printf("\n");
     printf("====================================\n");
@@ -300,9 +284,44 @@ void dashboardSection(
 }
 
 
-/* ---------------------------------------------------------
-   Main application
-   --------------------------------------------------------- */
+void searchOrderSection()
+{
+    int orderId;
+
+    printf("\n");
+    printf("====================================\n");
+    printf("            SEARCH ORDER\n");
+    printf("====================================\n");
+
+    printf("Enter Order ID: ");
+    scanf("%d", &orderId);
+
+    searchAndDisplayOrder(orderId);
+}
+
+
+void completedDeliverySection()
+{
+    printf("\n");
+    printf("====================================\n");
+    printf("       COMPLETED DELIVERIES\n");
+    printf("====================================\n");
+
+    showCompletedOrders();
+}
+
+
+void fileStorageSection()
+{
+    printf("\n");
+    printf("====================================\n");
+    printf("          FILE STORAGE\n");
+    printf("====================================\n");
+
+    saveOrdersToFile();
+}
+
+
 int main()
 {
     OrderQueue normalQueue;
@@ -310,33 +329,38 @@ int main()
 
     int choice;
 
-
-    /* Load project information */
     loadRestaurants();
     loadCustomers();
     prepareOrders();
 
-    /* Create the delivery map */
     createRoadMap();
 
-    /* Prepare normal delivery queue */
     queueStart(&normalQueue);
 
+    /*
+       Normal orders
+    */
     addToQueue(&normalQueue, 101);
     addToQueue(&normalQueue, 103);
-    addToQueue(&normalQueue, 104);
 
-
-    /* Prepare priority delivery queue */
     priorityStart(&urgentQueue);
 
-    addPriorityOrder(&urgentQueue, 101, 2);
+    /*
+       Priority orders
+    */
     addPriorityOrder(&urgentQueue, 102, 5);
-    addPriorityOrder(&urgentQueue, 103, 3);
     addPriorityOrder(&urgentQueue, 104, 4);
 
+    /*
+       Start completed delivery history
+    */
+    historyStart();
 
-    /* Main program loop */
+    /*
+       Check whether saved order file exists
+    */
+    loadOrdersFromFile();
+
     do
     {
         printf("\n\n");
@@ -349,12 +373,14 @@ int main()
         printf("4. Find Shortest Delivery Route\n");
         printf("5. Calculate Delivery ETA\n");
         printf("6. Delivery Dashboard\n");
+        printf("7. Search Order\n");
+        printf("8. Completed Deliveries\n");
+        printf("9. Save Orders to File\n");
         printf("0. Exit\n");
         printf("================================================\n");
 
         printf("Enter your choice: ");
         scanf("%d", &choice);
-
 
         switch (choice)
         {
@@ -388,6 +414,18 @@ int main()
                 );
                 break;
 
+            case 7:
+                searchOrderSection();
+                break;
+
+            case 8:
+                completedDeliverySection();
+                break;
+
+            case 9:
+                fileStorageSection();
+                break;
+
             case 0:
                 printf("\nSmart Food Delivery System closed.\n");
                 break;
@@ -397,7 +435,6 @@ int main()
         }
 
     } while (choice != 0);
-
 
     return 0;
 }

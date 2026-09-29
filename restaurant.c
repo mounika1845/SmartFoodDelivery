@@ -1,17 +1,17 @@
 #include <stdio.h>
-#include "customer.h"
+#include "restaurant.h"
 
-Customer customerList[CUSTOMER_LIMIT];
-int customerTotal = 0;
+Restaurant restaurantList[REST_LIMIT];
+int restaurantTotal = 0;
 
-void loadCustomers(void)
+void loadRestaurants(void)
 {
-    Customer data[] =
+    Restaurant data[] =
     {
-        {1, "Mounika", "Location A"},
-        {2, "Ananya", "Location C"},
-        {3, "Rahul", "Location D"},
-        {4, "Kiran", "Location F"}
+        {1, "Pizza Hub", "Location A"},
+        {2, "Spice Kitchen", "Location B"},
+        {3, "Burger Point", "Location C"},
+        {4, "Biryani House", "Location D"}
     };
 
     int count = sizeof(data) / sizeof(data[0]);
@@ -19,23 +19,23 @@ void loadCustomers(void)
 
     for (i = 0; i < count; i++)
     {
-        customerList[i] = data[i];
+        restaurantList[i] = data[i];
     }
 
-    customerTotal = count;
+    restaurantTotal = count;
 }
 
-void showCustomers(void)
+void showRestaurants(void)
 {
     int i;
 
-    printf("\n===== CUSTOMERS =====\n");
+    printf("\n===== RESTAURANTS =====\n");
 
-    for (i = 0; i < customerTotal; i++)
+    for (i = 0; i < restaurantTotal; i++)
     {
         printf("ID: %d | %s | %s\n",
-               customerList[i].id,
-               customerList[i].name,
-               customerList[i].area);
+               restaurantList[i].id,
+               restaurantList[i].name,
+               restaurantList[i].area);
     }
 }
